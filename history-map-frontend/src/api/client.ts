@@ -1,8 +1,7 @@
 /**
- * Placeholder HTTP client. Phase 1 has no backend, so nothing here is called
- * yet — it exists so `events.ts` / `polities.ts` can be written as if they
- * were already talking to a real API, making the Phase 2 swap a matter of
- * implementing this client rather than rewriting call sites.
+ * Thin HTTP client for the Phase 2 FastAPI backend. `VITE_API_BASE_URL` is
+ * set in `.env.local` for local development (see `.env.example`) and should
+ * point at the deployed API's origin in production.
  */
 
 const API_BASE_URL: string | undefined = import.meta.env.VITE_API_BASE_URL
@@ -11,7 +10,7 @@ export async function apiGet<T>(path: string): Promise<T> {
   if (!API_BASE_URL) {
     throw new Error(
       `apiGet(${path}) called with no VITE_API_BASE_URL configured. ` +
-        'Phase 1 should be reading from data/curatedDates.ts instead of calling apiGet.',
+        'Set VITE_API_BASE_URL in .env.local to point at the backend.',
     )
   }
   const response = await fetch(`${API_BASE_URL}${path}`)

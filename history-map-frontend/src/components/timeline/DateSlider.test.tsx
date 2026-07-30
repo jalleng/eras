@@ -4,9 +4,9 @@ import { DateSlider } from './DateSlider'
 import type { CuratedDateEntry } from '../../api/types'
 
 const dates: CuratedDateEntry[] = [
-  { isoDate: '1776-07-04', label: 'Declaration of Independence', events: [] },
-  { isoDate: '1941-12-07', label: 'Opening of the Pacific War', events: [] },
-  { isoDate: '1962-10-27', label: 'Black Saturday', events: [] },
+  { isoDate: '1776-07-04', label: 'Declaration of Independence' },
+  { isoDate: '1941-12-07', label: 'Opening of the Pacific War' },
+  { isoDate: '1962-10-27', label: 'Black Saturday' },
 ]
 
 describe('DateSlider', () => {
