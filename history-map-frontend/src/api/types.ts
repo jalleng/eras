@@ -1,11 +1,11 @@
 import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson'
 
 /**
- * Shared data-layer types. These shapes are the seam Phase 2 will cut along:
- * `api/events.ts` and `api/polities.ts` return exactly this shape whether the
- * data comes from `data/curatedDates.ts` (Phase 1) or a FastAPI + Neo4j
- * backend (Phase 2). Components should only ever depend on these types, not
- * on where the data physically comes from.
+ * Shared data-layer types. `api/events.ts` and `api/polities.ts` return
+ * exactly this shape whether the data comes from `data/curatedDates.ts`
+ * (Phase 1) or the FastAPI + Neo4j backend (Phase 2, current). Components
+ * should only ever depend on these types, not on where the data physically
+ * comes from.
  */
 
 export type Region =
@@ -35,7 +35,6 @@ export interface CuratedDateEntry {
   isoDate: string
   /** Short label for the slider, e.g. "Declaration of Independence". */
   label: string
-  events: HistoricalEvent[]
 }
 
 /** GeoJSON FeatureCollection of polity/boundary shapes for a given year (Phase 5, not yet populated). */
