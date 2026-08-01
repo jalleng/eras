@@ -19,6 +19,8 @@ from urllib.parse import quote
 
 import requests
 
+from ingestion.http_utils import request_with_retry
+
 WIKIPEDIA_SUMMARY_ENDPOINT = "https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
 
 USER_AGENT = (
@@ -35,19 +37,26 @@ class WikipediaSummary:
 
 def fetch_summary(title: str, *, timeout: float = 30.0) -> WikipediaSummary | None:
     """Fetches the summary + canonical URL for `title`'s English Wikipedia
-    article. Returns None if there's no article at that title, or the
+    article. Returns None if there's no article at that title, the request
+    keeps failing (rate-limited or erroring) even after retries, or the
     response is otherwise missing an extract/URL -- callers should leave
-    `wikipedia_url` null in that case rather than guessing one."""
+    `wikipedia_url` null in that case rather than guessing one. Never
+    raises: a single article's enrichment failing shouldn't abort a batch
+    that's ingesting many events."""
     url = WIKIPEDIA_SUMMARY_ENDPOINT.format(title=quote(title.replace(" ", "_"), safe=""))
     try:
-        response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=timeout)
-        if response.status_code == 404:
-            return None
-        response.raise_for_status()
+        response = request_with_retry(
+            lambda: requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=timeout),
+            max_retries=3,
+            base_delay=0.5,
+        )
     except requests.RequestException:
         return None
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError:
+        return None
     if not isinstance(data, dict):
         return None
 

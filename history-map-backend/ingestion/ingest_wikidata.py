@@ -15,8 +15,10 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import time
 from datetime import date, timedelta
 
+import requests
 from neo4j import ManagedTransaction, Session
 
 from app.db.neo4j_driver import close_driver, get_driver
@@ -31,6 +33,10 @@ from ingestion.transform import TransformedEvent, TransformedLocation
 # chosen.
 CONCURRENCY_WINDOW_DAYS = 7
 
+# Pause between successive per-event Wikipedia summary fetches, so a batch
+# with many linked articles doesn't hammer the REST API in a tight loop.
+_WIKIPEDIA_REQUEST_DELAY_SECONDS = 0.2
+
 
 def _overlaps_window(event: TransformedEvent, start_date: date, end_date: date) -> bool:
     """Exact date-window overlap check, re-verified in Python rather than
@@ -43,7 +49,12 @@ def _overlaps_window(event: TransformedEvent, start_date: date, end_date: date) 
 
 
 def _fetch_and_transform(start_date: date, end_date: date) -> list[TransformedEvent]:
-    bindings = wikidata_client.fetch_events(start_date.isoformat(), end_date.isoformat())
+    try:
+        bindings = wikidata_client.fetch_events(start_date.isoformat(), end_date.isoformat())
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"Wikidata Query Service request failed even after retries: {exc}"
+        ) from exc
 
     events: list[TransformedEvent] = []
     skipped = 0
@@ -51,6 +62,11 @@ def _fetch_and_transform(start_date: date, end_date: date) -> list[TransformedEv
     for binding in bindings:
         title = transform.get_wikipedia_title(binding)
         summary = wikipedia_client.fetch_summary(title) if title else None
+        if title:
+            # Be a good citizen of Wikipedia's REST API: a batch can link to
+            # hundreds of articles, so throttle even the successful calls
+            # rather than relying solely on retry backoff for failures.
+            time.sleep(_WIKIPEDIA_REQUEST_DELAY_SECONDS)
         event = transform.transform_binding(binding, summary)
         if event is None:
             skipped += 1

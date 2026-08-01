@@ -25,12 +25,20 @@ endpoint and Wikipedia's REST API (see `wikipedia_client.py`).
 
 from __future__ import annotations
 
+import time
 from datetime import date, timedelta
 from typing import Any
 
 import requests
 
+from ingestion.http_utils import request_with_retry
+
 WIKIDATA_SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
+
+# Pause between the point-in-time and range queries within one `fetch_events`
+# call, so a single date-range request never fires two back-to-back hits at
+# WDQS.
+_INTER_QUERY_DELAY_SECONDS = 1.0
 
 # Wikidata's User-Agent policy (https://meta.wikimedia.org/wiki/User-Agent_policy)
 # aggressively rate-limits or blocks generic/unidentified clients.
@@ -149,14 +157,18 @@ LIMIT {_RESULT_LIMIT}
 
 
 def _run_query(query: str, *, timeout: float) -> list[dict[str, Any]]:
-    response = requests.get(
-        WIKIDATA_SPARQL_ENDPOINT,
-        params={"query": query, "format": "json"},
-        headers={"User-Agent": USER_AGENT, "Accept": "application/sparql-results+json"},
-        timeout=timeout,
+    response = request_with_retry(
+        lambda: requests.get(
+            WIKIDATA_SPARQL_ENDPOINT,
+            params={"query": query, "format": "json"},
+            headers={"User-Agent": USER_AGENT, "Accept": "application/sparql-results+json"},
+            timeout=timeout,
+        )
     )
-    response.raise_for_status()
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError:
+        return []
     if not isinstance(data, dict):
         return []
     bindings = data.get("results", {}).get("bindings")
@@ -170,6 +182,7 @@ def fetch_events(start_date: str, end_date: str, *, timeout: float = 60.0) -> li
     P585 and P580 set, which is unusual but possible), the point-in-time
     binding wins, since P585 is the more precise signal."""
     point_bindings = _run_query(build_point_in_time_query(start_date, end_date), timeout=timeout)
+    time.sleep(_INTER_QUERY_DELAY_SECONDS)
     range_bindings = _run_query(build_range_query(start_date, end_date), timeout=timeout)
 
     by_item: dict[str, dict[str, Any]] = {}
