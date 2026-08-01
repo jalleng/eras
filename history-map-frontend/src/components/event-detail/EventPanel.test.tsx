@@ -36,10 +36,10 @@ describe('EventPanel', () => {
     render(
       <EventPanel
         event={null}
-        allEvents={[]}
+        concurrentEvents={[]}
         hoveredEventId={null}
         onHoverEvent={noop}
-        onSelectEvent={noop}
+        onFocusEvent={noop}
         onClose={noop}
       />,
     )
@@ -50,10 +50,10 @@ describe('EventPanel', () => {
     render(
       <EventPanel
         event={SINGLE_DAY_EVENT}
-        allEvents={[SINGLE_DAY_EVENT]}
+        concurrentEvents={[]}
         hoveredEventId={null}
         onHoverEvent={noop}
-        onSelectEvent={noop}
+        onFocusEvent={noop}
         onClose={noop}
       />,
     )
@@ -64,10 +64,10 @@ describe('EventPanel', () => {
     render(
       <EventPanel
         event={MULTI_DAY_EVENT}
-        allEvents={[MULTI_DAY_EVENT]}
+        concurrentEvents={[]}
         hoveredEventId={null}
         onHoverEvent={noop}
-        onSelectEvent={noop}
+        onFocusEvent={noop}
         onClose={noop}
       />,
     )
@@ -78,10 +78,10 @@ describe('EventPanel', () => {
     render(
       <EventPanel
         event={SINGLE_DAY_EVENT}
-        allEvents={[SINGLE_DAY_EVENT]}
+        concurrentEvents={[]}
         hoveredEventId={null}
         onHoverEvent={noop}
-        onSelectEvent={noop}
+        onFocusEvent={noop}
         onClose={noop}
       />,
     )
@@ -95,10 +95,10 @@ describe('EventPanel', () => {
     render(
       <EventPanel
         event={MULTI_DAY_EVENT}
-        allEvents={[MULTI_DAY_EVENT]}
+        concurrentEvents={[]}
         hoveredEventId={null}
         onHoverEvent={noop}
-        onSelectEvent={noop}
+        onFocusEvent={noop}
         onClose={noop}
       />,
     )
@@ -112,10 +112,10 @@ describe('EventPanel', () => {
     render(
       <EventPanel
         event={SINGLE_DAY_EVENT}
-        allEvents={[SINGLE_DAY_EVENT]}
+        concurrentEvents={[]}
         hoveredEventId={null}
         onHoverEvent={noop}
-        onSelectEvent={noop}
+        onFocusEvent={noop}
         onClose={onClose}
       />,
     )

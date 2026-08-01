@@ -3,22 +3,23 @@ import { ConcurrentEventsList } from './ConcurrentEventsList'
 import { formatDisplayDate, formatDisplayDateRange } from '../../utils/dateUtils'
 
 interface EventPanelProps {
+  /** The focused event's own canonical record (see `useFocusedEvent`). */
   event: HistoricalEvent | null
-  /** All events for the currently selected date, passed through to the concurrent-events list. */
-  allEvents: HistoricalEvent[]
+  /** The focused event's concurrent cluster (see `useConcurrentEvents`), independent of the browsed range. */
+  concurrentEvents: HistoricalEvent[]
   hoveredEventId: string | null
   onHoverEvent: (id: string | null) => void
-  onSelectEvent: (id: string) => void
+  onFocusEvent: (id: string) => void
   onClose: () => void
 }
 
-/** Detail panel shown when an event marker is clicked/selected. */
+/** Detail panel shown when an event marker is clicked/focused. */
 export function EventPanel({
   event,
-  allEvents,
+  concurrentEvents,
   hoveredEventId,
   onHoverEvent,
-  onSelectEvent,
+  onFocusEvent,
   onClose,
 }: EventPanelProps) {
   if (!event) return null
@@ -68,11 +69,10 @@ export function EventPanel({
           Meanwhile, elsewhere
         </h3>
         <ConcurrentEventsList
-          events={allEvents}
-          focusedEventId={event.id}
+          concurrentEvents={concurrentEvents}
           hoveredEventId={hoveredEventId}
           onHoverEvent={onHoverEvent}
-          onSelectEvent={onSelectEvent}
+          onFocusEvent={onFocusEvent}
         />
       </div>
     </aside>

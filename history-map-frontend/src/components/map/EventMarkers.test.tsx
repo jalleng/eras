@@ -38,21 +38,21 @@ function renderMarkers(
   overrides: Partial<React.ComponentProps<typeof EventMarkers>> = {},
 ) {
   const onHoverEvent = vi.fn()
-  const onSelectEvent = vi.fn()
+  const onFocusEvent = vi.fn()
   render(
     <svg>
       <EventMarkers
         events={events}
         projection={projection}
         hoveredEventId={null}
-        selectedEventId={null}
+        focusedEventId={null}
         onHoverEvent={onHoverEvent}
-        onSelectEvent={onSelectEvent}
+        onFocusEvent={onFocusEvent}
         {...overrides}
       />
     </svg>,
   )
-  return { onHoverEvent, onSelectEvent }
+  return { onHoverEvent, onFocusEvent }
 }
 
 describe('EventMarkers', () => {
@@ -83,19 +83,19 @@ describe('EventMarkers', () => {
     expect(onHoverEvent).toHaveBeenCalledWith(null)
   })
 
-  it('calls onSelectEvent when a marker is clicked', () => {
-    const { onSelectEvent } = renderMarkers()
+  it('calls onFocusEvent when a marker is clicked', () => {
+    const { onFocusEvent } = renderMarkers()
     fireEvent.click(screen.getByRole('button', { name: /Captain Cook/ }))
-    expect(onSelectEvent).toHaveBeenCalledWith('plymouth')
+    expect(onFocusEvent).toHaveBeenCalledWith('plymouth')
   })
 
-  it('calls onSelectEvent when a focused marker receives Enter', () => {
-    const { onSelectEvent } = renderMarkers()
+  it('calls onFocusEvent when a focused marker receives Enter', () => {
+    const { onFocusEvent } = renderMarkers()
     const marker = screen.getByRole('button', {
       name: /Declaration of Independence/,
     })
     fireEvent.keyDown(marker, { key: 'Enter' })
-    expect(onSelectEvent).toHaveBeenCalledWith('philadelphia')
+    expect(onFocusEvent).toHaveBeenCalledWith('philadelphia')
   })
 
   it('is keyboard-focusable', () => {

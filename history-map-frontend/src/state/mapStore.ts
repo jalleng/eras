@@ -6,31 +6,31 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react'
+import { featuredRanges } from '../data/curatedDates'
 import type { MapAction, MapState } from './types'
 
 const initialState: MapState = {
-  selectedDateIndex: 0,
+  rangeStart: featuredRanges[0].rangeStart,
+  rangeEnd: featuredRanges[0].rangeEnd,
   projectionType: 'equirectangular',
   hoveredEventId: null,
-  selectedEventId: null,
+  focusedEventId: null,
 }
 
 function mapReducer(state: MapState, action: MapAction): MapState {
   switch (action.type) {
-    case 'SELECT_DATE_INDEX':
-      // Changing dates closes any open detail panel, since the selected
-      // event belongs to the date being navigated away from.
-      return {
-        ...state,
-        selectedDateIndex: action.index,
-        selectedEventId: null,
-      }
+    case 'SET_RANGE':
+      // Deliberately does NOT touch focusedEventId: the range and the
+      // focused event are independent. Whether a focus should be cleared
+      // because it's now outside the range is decided at the app level
+      // (where the focused event's own date is known), not here.
+      return { ...state, rangeStart: action.rangeStart, rangeEnd: action.rangeEnd }
     case 'SET_PROJECTION':
       return { ...state, projectionType: action.projectionType }
     case 'HOVER_EVENT':
       return { ...state, hoveredEventId: action.id }
-    case 'SELECT_EVENT':
-      return { ...state, selectedEventId: action.id }
+    case 'FOCUS_EVENT':
+      return { ...state, focusedEventId: action.id }
     default:
       return state
   }

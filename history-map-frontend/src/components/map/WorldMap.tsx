@@ -35,9 +35,13 @@ const landFeature = feature(
 interface WorldMapProps {
   events: HistoricalEvent[]
   hoveredEventId: string | null
-  selectedEventId: string | null
+  focusedEventId: string | null
+  /** The focused event's own canonical record, or null when nothing's focused (see `useFocusedEvent`). */
+  focusedEvent: HistoricalEvent | null
+  /** The focused event's concurrent cluster (see `useConcurrentEvents`), independent of the browsed range. */
+  concurrentEvents: HistoricalEvent[]
   onHoverEvent: (id: string | null) => void
-  onSelectEvent: (id: string) => void
+  onFocusEvent: (id: string) => void
   projectionType: ProjectionType
   boundaries?: PolityBoundaryCollection['geojson']
 }
@@ -45,9 +49,11 @@ interface WorldMapProps {
 export function WorldMap({
   events,
   hoveredEventId,
-  selectedEventId,
+  focusedEventId,
+  focusedEvent,
+  concurrentEvents,
   onHoverEvent,
-  onSelectEvent,
+  onFocusEvent,
   projectionType,
   boundaries,
 }: WorldMapProps) {
@@ -151,7 +157,7 @@ export function WorldMap({
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="h-full w-full touch-none select-none bg-slate-950"
         role="img"
-        aria-label="World map showing historical events for the selected date"
+        aria-label="World map showing historical events for the selected date range"
         onMouseMove={handlePointerMove}
         onMouseLeave={() => setPointerPosition(null)}
       >
@@ -169,17 +175,17 @@ export function WorldMap({
           />
           <BoundaryLayer geojson={boundaries} path={path} />
           <ConcurrentEventLines
-            events={events}
-            hoveredEventId={hoveredEventId}
+            focusedEvent={focusedEvent}
+            concurrentEvents={concurrentEvents}
             path={path}
           />
           <EventMarkers
             events={events}
             projection={projection}
             hoveredEventId={hoveredEventId}
-            selectedEventId={selectedEventId}
+            focusedEventId={focusedEventId}
             onHoverEvent={onHoverEvent}
-            onSelectEvent={onSelectEvent}
+            onFocusEvent={onFocusEvent}
             markerScale={zoomK}
             rotate={projectionType === 'orthographic' ? rotate : null}
           />

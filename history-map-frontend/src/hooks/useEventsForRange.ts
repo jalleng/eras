@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react'
-import { getEventsForDate } from '../api/events'
+import { getEventsForRange } from '../api/events'
 import type { HistoricalEvent } from '../api/types'
 
-interface UseEventsForDateResult {
+interface UseEventsForRangeResult {
   events: HistoricalEvent[]
   isLoading: boolean
   error: Error | null
 }
 
-/** Loads the events for a given ISO date via the `api/` seam. */
-export function useEventsForDate(isoDate: string): UseEventsForDateResult {
+/**
+ * Loads the events for a given ISO date range via the `api/` seam. Callers
+ * that want to debounce requests while a user drags a control (e.g. the
+ * range slider) should debounce `startIsoDate`/`endIsoDate` themselves
+ * before passing them in -- this hook fetches whatever it's given,
+ * immediately, the same way `useEventsForDate` did.
+ */
+export function useEventsForRange(
+  startIsoDate: string,
+  endIsoDate: string,
+): UseEventsForRangeResult {
   const [events, setEvents] = useState<HistoricalEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -17,12 +26,12 @@ export function useEventsForDate(isoDate: string): UseEventsForDateResult {
   useEffect(() => {
     let cancelled = false
     // Resetting loading/error here (rather than deriving them) is intentional:
-    // it's what lets a change in `isoDate` re-show a loading state.
+    // it's what lets a change in the range re-show a loading state.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true)
     setError(null)
 
-    getEventsForDate(isoDate)
+    getEventsForRange(startIsoDate, endIsoDate)
       .then((result) => {
         if (!cancelled) setEvents(result)
       })
@@ -37,7 +46,7 @@ export function useEventsForDate(isoDate: string): UseEventsForDateResult {
     return () => {
       cancelled = true
     }
-  }, [isoDate])
+  }, [startIsoDate, endIsoDate])
 
   return { events, isLoading, error }
 }

@@ -8,9 +8,9 @@ interface EventMarkersProps {
   events: HistoricalEvent[]
   projection: GeoProjection
   hoveredEventId: string | null
-  selectedEventId: string | null
+  focusedEventId: string | null
   onHoverEvent: (id: string | null) => void
-  onSelectEvent: (id: string) => void
+  onFocusEvent: (id: string) => void
   /** Counter-scales marker radius against the current zoom level so markers stay a consistent on-screen size. */
   markerScale?: number
   /**
@@ -27,9 +27,9 @@ export function EventMarkers({
   events,
   projection,
   hoveredEventId,
-  selectedEventId,
+  focusedEventId,
   onHoverEvent,
-  onSelectEvent,
+  onFocusEvent,
   markerScale = 1,
   rotate = null,
 }: EventMarkersProps) {
@@ -49,7 +49,7 @@ export function EventMarkers({
         if (!projected) return null
         const [x, y] = projected
         const isHovered = hoveredEventId === event.id
-        const isSelected = selectedEventId === event.id
+        const isFocused = focusedEventId === event.id
         const isOnFarSide =
           visibleCenter !== null &&
           geoDistance(
@@ -61,7 +61,7 @@ export function EventMarkers({
         const handleKeyDown = (keyboardEvent: KeyboardEvent<SVGGElement>) => {
           if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
             keyboardEvent.preventDefault()
-            onSelectEvent(event.id)
+            onFocusEvent(event.id)
           }
         }
 
@@ -81,10 +81,10 @@ export function EventMarkers({
             onMouseLeave={() => onHoverEvent(null)}
             onFocus={() => onHoverEvent(event.id)}
             onBlur={() => onHoverEvent(null)}
-            onClick={() => onSelectEvent(event.id)}
+            onClick={() => onFocusEvent(event.id)}
             onKeyDown={handleKeyDown}
           >
-            {!isOnFarSide && (isHovered || isSelected) && (
+            {!isOnFarSide && (isHovered || isFocused) && (
               <circle
                 cx={x}
                 cy={y}
@@ -95,16 +95,16 @@ export function EventMarkers({
             <circle
               cx={x}
               cy={y}
-              r={isSelected ? radius * 1.3 : radius}
+              r={isFocused ? radius * 1.3 : radius}
               fill={isOnFarSide ? 'none' : colorForRegion(event.region)}
               stroke={
                 isOnFarSide
                   ? 'rgba(148,163,184,0.45)'
-                  : isHovered || isSelected
+                  : isHovered || isFocused
                     ? '#fff'
                     : 'rgba(15,23,42,0.8)'
               }
-              strokeWidth={isOnFarSide ? 1 : isHovered || isSelected ? 2 : 1}
+              strokeWidth={isOnFarSide ? 1 : isHovered || isFocused ? 2 : 1}
               strokeDasharray={isOnFarSide ? '2,2' : undefined}
               opacity={isOnFarSide ? 0.5 : undefined}
             />
