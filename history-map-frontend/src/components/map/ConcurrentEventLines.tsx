@@ -2,36 +2,38 @@ import type { GeoPath } from 'd3-geo'
 import type { HistoricalEvent } from '../../api/types'
 
 interface ConcurrentEventLinesProps {
-  events: HistoricalEvent[]
-  hoveredEventId: string | null
+  /** The event the user has clicked into; the anchor lines are drawn from. */
+  focusedEvent: HistoricalEvent | null
+  /**
+   * The focused event's own "meanwhile, elsewhere" cluster (from
+   * `GET /events/{id}/concurrent`), independent of whatever date range is
+   * currently browsed -- lines are drawn to these regardless of whether
+   * they fall inside the visible range.
+   */
+  concurrentEvents: HistoricalEvent[]
   path: GeoPath
 }
 
 /**
- * When an event is hovered, draws a connecting line from it to every other
- * event happening on the same date elsewhere in the world (the "meanwhile,
- * elsewhere" visualization). Renders nothing when nothing is hovered.
+ * When an event is focused (clicked), draws a connecting line from it to
+ * every event in its own concurrent cluster elsewhere in the world (the
+ * "meanwhile, elsewhere" visualization). Renders nothing when nothing is
+ * focused.
  */
 export function ConcurrentEventLines({
-  events,
-  hoveredEventId,
+  focusedEvent,
+  concurrentEvents,
   path,
 }: ConcurrentEventLinesProps) {
-  if (!hoveredEventId) return null
-
-  const hoveredEvent = events.find((event) => event.id === hoveredEventId)
-  if (!hoveredEvent) return null
-
-  const others = events.filter((event) => event.id !== hoveredEventId)
-  if (others.length === 0) return null
+  if (!focusedEvent || concurrentEvents.length === 0) return null
 
   return (
     <g data-testid="concurrent-event-lines" className="pointer-events-none">
-      {others.map((other) => {
+      {concurrentEvents.map((other) => {
         const d = path({
           type: 'LineString',
           coordinates: [
-            [hoveredEvent.longitude, hoveredEvent.latitude],
+            [focusedEvent.longitude, focusedEvent.latitude],
             [other.longitude, other.latitude],
           ],
         })

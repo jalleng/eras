@@ -1,26 +1,21 @@
 import type { HistoricalEvent } from '../../api/types'
 
 interface ConcurrentEventsListProps {
-  /** All events for the currently selected date. */
-  events: HistoricalEvent[]
-  /** The event currently focused/open in the detail panel, excluded from the list. */
-  focusedEventId: string | null
+  /** The focused event's own concurrent cluster (already excludes the focused event itself). */
+  concurrentEvents: HistoricalEvent[]
   hoveredEventId: string | null
   onHoverEvent: (id: string | null) => void
-  onSelectEvent: (id: string) => void
+  onFocusEvent: (id: string) => void
 }
 
-/** Lists every other event happening on the same date, syncing hover with the map's connecting lines. */
+/** Lists everything in the focused event's concurrent cluster, syncing hover with the map's connecting lines. */
 export function ConcurrentEventsList({
-  events,
-  focusedEventId,
+  concurrentEvents,
   hoveredEventId,
   onHoverEvent,
-  onSelectEvent,
+  onFocusEvent,
 }: ConcurrentEventsListProps) {
-  const others = events.filter((event) => event.id !== focusedEventId)
-
-  if (others.length === 0) {
+  if (concurrentEvents.length === 0) {
     return (
       <p className="text-sm text-slate-400">
         No other recorded events for this date.
@@ -30,7 +25,7 @@ export function ConcurrentEventsList({
 
   return (
     <ul className="flex flex-col gap-2">
-      {others.map((event) => (
+      {concurrentEvents.map((event) => (
         <li key={event.id}>
           <button
             type="button"
@@ -38,7 +33,7 @@ export function ConcurrentEventsList({
             onMouseLeave={() => onHoverEvent(null)}
             onFocus={() => onHoverEvent(event.id)}
             onBlur={() => onHoverEvent(null)}
-            onClick={() => onSelectEvent(event.id)}
+            onClick={() => onFocusEvent(event.id)}
             className={`w-full rounded-md border px-3 py-2 text-left transition-colors ${
               hoveredEventId === event.id
                 ? 'border-sky-400 bg-sky-950/50'

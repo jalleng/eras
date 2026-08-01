@@ -1,11 +1,9 @@
 import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson'
 
 /**
- * Shared data-layer types. `api/events.ts` and `api/polities.ts` return
- * exactly this shape whether the data comes from `data/curatedDates.ts`
- * (Phase 1) or the FastAPI + Neo4j backend (Phase 2, current). Components
- * should only ever depend on these types, not on where the data physically
- * comes from.
+ * Shared data-layer types for events served by the FastAPI + Neo4j backend
+ * (`api/events.ts`, `api/polities.ts`). Components should only ever depend
+ * on these types, not on the backend's own request/response shapes.
  */
 
 export type Region =
@@ -33,10 +31,13 @@ export interface HistoricalEvent {
   wikipediaUrl: string | null
 }
 
-export interface CuratedDateEntry {
-  /** ISO 8601 date (YYYY-MM-DD) used as the slider's stop and event lookup key. */
-  isoDate: string
-  /** Short label for the slider, e.g. "Declaration of Independence". */
+/** A hand-picked quick-jump window for the range slider, e.g. "July 1776". */
+export interface FeaturedRange {
+  /** ISO 8601 date (YYYY-MM-DD) — the window's start. */
+  rangeStart: string
+  /** ISO 8601 date (YYYY-MM-DD) — the window's end. */
+  rangeEnd: string
+  /** Short label for the quick-jump button, e.g. "Declaration of Independence". */
   label: string
 }
 

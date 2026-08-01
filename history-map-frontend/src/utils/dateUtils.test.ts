@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   compareIsoDates,
-  findClosestDateIndex,
+  dayNumberToIsoDate,
   formatDisplayDate,
   formatDisplayDateRange,
+  isoDateToDayNumber,
   parseIsoDate,
+  rangesOverlap,
 } from './dateUtils'
 
 describe('parseIsoDate', () => {
@@ -71,26 +73,51 @@ describe('compareIsoDates', () => {
   })
 })
 
-describe('findClosestDateIndex', () => {
-  const sortedDates = ['1776-07-04', '1941-12-07', '1962-10-27']
-
-  it('finds an exact match', () => {
-    expect(findClosestDateIndex(sortedDates, '1941-12-07')).toBe(1)
+describe('rangesOverlap', () => {
+  it('is true when the ranges partially overlap', () => {
+    expect(rangesOverlap('1776-06-28', '1776-07-12', '1776-07-01', '1776-08-01')).toBe(true)
   })
 
-  it('finds the closest earlier date when there is no exact match', () => {
-    expect(findClosestDateIndex(sortedDates, '1950-01-01')).toBe(1)
+  it('is true when one range fully contains the other', () => {
+    expect(rangesOverlap('1776-01-01', '1776-12-31', '1776-06-28', '1776-07-12')).toBe(true)
   })
 
-  it('returns 0 when the target date is before every curated date', () => {
-    expect(findClosestDateIndex(sortedDates, '1700-01-01')).toBe(0)
+  it('is true when the ranges only touch at a single shared day', () => {
+    expect(rangesOverlap('1776-06-28', '1776-07-04', '1776-07-04', '1776-07-12')).toBe(true)
   })
 
-  it('returns the last index when the target date is after every curated date', () => {
-    expect(findClosestDateIndex(sortedDates, '2020-01-01')).toBe(2)
+  it('is false when one range ends before the other starts', () => {
+    expect(rangesOverlap('1776-06-28', '1776-07-04', '1776-07-05', '1776-07-12')).toBe(false)
   })
 
-  it('returns 0 for an empty list', () => {
-    expect(findClosestDateIndex([], '1941-12-07')).toBe(0)
+  it('is true for a single-day range matching a single-day event', () => {
+    expect(rangesOverlap('1941-12-07', '1941-12-07', '1941-12-07', '1941-12-07')).toBe(true)
+  })
+})
+
+describe('isoDateToDayNumber / dayNumberToIsoDate', () => {
+  it('round-trips a date through day-number and back', () => {
+    const day = isoDateToDayNumber('1776-07-04')
+    expect(dayNumberToIsoDate(day)).toBe('1776-07-04')
+  })
+
+  it('orders day numbers the same way the dates are chronologically ordered', () => {
+    expect(isoDateToDayNumber('1776-07-04')).toBeLessThan(
+      isoDateToDayNumber('1941-12-07'),
+    )
+  })
+
+  it('one calendar day apart is exactly one day-number apart', () => {
+    expect(isoDateToDayNumber('1941-12-08') - isoDateToDayNumber('1941-12-07')).toBe(1)
+  })
+
+  it('round-trips across a year boundary', () => {
+    const day = isoDateToDayNumber('1941-12-31')
+    expect(dayNumberToIsoDate(day + 1)).toBe('1942-01-01')
+  })
+
+  it('round-trips dates before year 1000 without losing leading zeros', () => {
+    const day = isoDateToDayNumber('0044-03-15')
+    expect(dayNumberToIsoDate(day)).toBe('0044-03-15')
   })
 })

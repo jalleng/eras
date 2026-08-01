@@ -58,18 +58,41 @@ export function compareIsoDates(a: string, b: string): number {
   return a.localeCompare(b)
 }
 
-/** Finds the index of the closest date at or before `targetIsoDate` in a sorted list of ISO dates, defaulting to 0. */
-export function findClosestDateIndex(
-  sortedIsoDates: string[],
-  targetIsoDate: string,
-): number {
-  let closestIndex = 0
-  for (let i = 0; i < sortedIsoDates.length; i++) {
-    if (compareIsoDates(sortedIsoDates[i], targetIsoDate) <= 0) {
-      closestIndex = i
-    } else {
-      break
-    }
-  }
-  return closestIndex
+/** Whether two inclusive ISO date spans [aStart, aEnd] and [bStart, bEnd] overlap at all. */
+export function rangesOverlap(
+  aStart: string,
+  aEnd: string,
+  bStart: string,
+  bEnd: string,
+): boolean {
+  return compareIsoDates(aStart, bEnd) <= 0 && compareIsoDates(bStart, aEnd) <= 0
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+/**
+ * Converts an ISO date to a whole-number day offset (in UTC, never the
+ * local timezone, for the same reason noted above). Used to drive the range
+ * slider, which operates on plain numbers rather than date strings — one
+ * integer step is exactly one day.
+ *
+ * Built with `setUTCFullYear` rather than `Date.UTC`/`new Date(y, m, d)`:
+ * both of those special-case a two-digit year (0-99) as 1900+year, which
+ * would silently corrupt any date before 1000 CE. `setUTCFullYear` applies
+ * the year literally, with no such special-casing.
+ */
+export function isoDateToDayNumber(isoDate: string): number {
+  const { year, month, day } = parseIsoDate(isoDate)
+  const date = new Date(0)
+  date.setUTCFullYear(year, month - 1, day)
+  return Math.round(date.getTime() / MS_PER_DAY)
+}
+
+/** Inverse of `isoDateToDayNumber`: converts a whole-number day offset back to an ISO date string. */
+export function dayNumberToIsoDate(dayNumber: number): string {
+  const date = new Date(dayNumber * MS_PER_DAY)
+  const year = date.getUTCFullYear()
+  const month = date.getUTCMonth() + 1
+  const day = date.getUTCDate()
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }

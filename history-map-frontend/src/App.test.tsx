@@ -29,23 +29,49 @@ const PEARL_HARBOR_EVENT: HistoricalEvent = {
   wikipediaUrl: null,
 }
 
+// Deliberately dated OUTSIDE the Declaration cluster's featured range
+// (1776-06-28..1776-07-12), so a test can prove the concurrent-moment view
+// ignores the visible range's width entirely.
+const OUT_OF_RANGE_CONCURRENT_EVENT: HistoricalEvent = {
+  id: 'out-of-range-concurrent-event',
+  title: 'Some other concurrent happening',
+  description: 'Happens well after the Declaration cluster window.',
+  dateStart: '1776-08-01',
+  dateEnd: null,
+  latitude: 48.8566,
+  longitude: 2.3522,
+  region: 'Europe',
+  location: 'Paris, France',
+  wikipediaUrl: null,
+}
+
 describe('App', () => {
   beforeEach(() => {
-    // getEventsForDate now calls the real backend via fetch; stub it here so
-    // the test suite stays hermetic and doesn't require a live server.
+    // api/events.ts calls the real backend via fetch; stub it here so the
+    // test suite stays hermetic and doesn't require a live server.
     vi.stubGlobal(
       'fetch',
       vi.fn(async (url: string | URL) => {
         const urlString = url.toString()
-        const events = urlString.includes('start_date=1776-07-04')
-          ? [DECLARATION_EVENT]
-          : urlString.includes('start_date=1941-12-07')
-            ? [PEARL_HARBOR_EVENT]
-            : []
-        return new Response(JSON.stringify(events), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        })
+        const respond = (body: unknown) =>
+          new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+
+        if (urlString.includes(`/events/${DECLARATION_EVENT.id}/concurrent`)) {
+          return respond([OUT_OF_RANGE_CONCURRENT_EVENT])
+        }
+        if (urlString.includes(`/events/${DECLARATION_EVENT.id}`)) {
+          return respond(DECLARATION_EVENT)
+        }
+        if (urlString.includes('start_date=1776-06-28')) {
+          return respond([DECLARATION_EVENT])
+        }
+        if (urlString.includes('start_date=1941-12-07')) {
+          return respond([PEARL_HARBOR_EVENT])
+        }
+        return respond([])
       }),
     )
   })
@@ -54,9 +80,9 @@ describe('App', () => {
     vi.unstubAllGlobals()
   })
 
-  it('shows the first curated date and its events by default', async () => {
+  it('shows the default featured range and its events by default', async () => {
     render(<App />)
-    expect(screen.getByText('July 4, 1776')).toBeInTheDocument()
+    expect(screen.getByText('June 28 – July 12, 1776')).toBeInTheDocument()
     await waitFor(() => {
       expect(
         screen.getByRole('button', {
@@ -66,10 +92,9 @@ describe('App', () => {
     })
   })
 
-  it('updates the visible events after selecting a different date on the slider', async () => {
+  it('updates the visible events after jumping to a different featured range', async () => {
     render(<App />)
 
-    // Sanity check: the earlier date's marker is present before switching.
     await waitFor(() => {
       expect(
         screen.getByRole('button', {
@@ -78,11 +103,11 @@ describe('App', () => {
       ).toBeInTheDocument()
     })
 
-    const slider = screen.getByRole('slider', { name: /select a date/i })
-    // Index 2: 0=Declaration of Independence (1776), 1=Battle of Waterloo (1815), 2=Pearl Harbor (1941).
-    fireEvent.change(slider, { target: { value: '2' } })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Opening of the Pacific War' }),
+    )
 
-    expect(screen.getByText('December 7, 1941')).toBeInTheDocument()
+    expect(screen.getByText('December 7 – December 8, 1941')).toBeInTheDocument()
 
     // The debounced event fetch needs its timer to elapse before the map updates.
     await waitFor(
@@ -99,5 +124,49 @@ describe('App', () => {
         name: /Declaration of Independence adopted/,
       }),
     ).not.toBeInTheDocument()
+  })
+
+  it('clicking an event marker focuses it and shows its concurrent-moment view, independent of the visible range', async () => {
+    render(<App />)
+
+    const marker = await screen.findByRole('button', {
+      name: /Declaration of Independence adopted/,
+    })
+    fireEvent.click(marker)
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Event details')).toBeInTheDocument()
+    })
+
+    // The concurrent event is dated 1776-08-01, outside the visible
+    // 1776-06-28..07-12 range -- it still shows up, because the concurrent
+    // view is scoped to the focused event's own cluster, not the range.
+    await waitFor(() => {
+      expect(
+        screen.getByText('Some other concurrent happening'),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('clears the focused event once the range is changed away from it, but not before', async () => {
+    render(<App />)
+
+    const marker = await screen.findByRole('button', {
+      name: /Declaration of Independence adopted/,
+    })
+    fireEvent.click(marker)
+    await waitFor(() => {
+      expect(screen.getByLabelText('Event details')).toBeInTheDocument()
+    })
+
+    // Jumping to the Pacific War window no longer overlaps the Declaration
+    // event's own date (1776-07-04), so the focus should clear.
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Opening of the Pacific War' }),
+    )
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Event details')).not.toBeInTheDocument()
+    })
   })
 })
