@@ -1,8 +1,16 @@
 from unittest.mock import MagicMock
 
+import pytest
 import requests
 
 from ingestion import wikidata_client
+
+
+@pytest.fixture(autouse=True)
+def _no_sleep(mocker):
+    # fetch_events() sleeps between its two WDQS calls to be a good citizen
+    # of rate limits; that real delay has no place slowing down unit tests.
+    mocker.patch.object(wikidata_client.time, "sleep")
 
 POINT_BINDING = {
     "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q182881"},
@@ -138,5 +146,33 @@ def test_fetch_events_treats_non_list_bindings_as_empty(mocker):
     mocker.patch.object(
         wikidata_client.requests, "get", return_value=_mock_response(mocker, payload)
     )
+
+    assert wikidata_client.fetch_events("1815-06-15", "1815-06-22") == []
+
+
+def test_fetch_events_retries_a_rate_limited_query_then_succeeds(mocker):
+    rate_limited = _mock_response(mocker, {})
+    rate_limited.status_code = 429
+    point_payload = {"results": {"bindings": [POINT_BINDING]}}
+    range_payload = {"results": {"bindings": [RANGE_BINDING]}}
+    mocker.patch.object(
+        wikidata_client.requests,
+        "get",
+        side_effect=[
+            rate_limited,
+            _mock_response(mocker, point_payload),
+            _mock_response(mocker, range_payload),
+        ],
+    )
+
+    bindings = wikidata_client.fetch_events("1815-06-15", "1815-06-22")
+
+    assert len(bindings) == 2
+
+
+def test_fetch_events_treats_malformed_json_as_empty(mocker):
+    response = _mock_response(mocker, {})
+    response.json.side_effect = ValueError("not json")
+    mocker.patch.object(wikidata_client.requests, "get", return_value=response)
 
     assert wikidata_client.fetch_events("1815-06-15", "1815-06-22") == []
