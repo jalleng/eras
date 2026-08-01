@@ -16,6 +16,15 @@ CONSTRAINTS: list[tuple[str, str]] = [
     ("region_id_unique", "Region"),
 ]
 
+# (constraint name, node label, property) — one-off constraints on a
+# property other than `id`. `wikidata_id` is the stable external key the
+# Wikidata ingestion pipeline (`ingestion/ingest_wikidata.py`) MERGEs on;
+# curated events never set this property, so it doesn't collide with the
+# `id`-based constraint above.
+PROPERTY_CONSTRAINTS: list[tuple[str, str, str]] = [
+    ("event_wikidata_id_unique", "Event", "wikidata_id"),
+]
+
 
 def create_constraints() -> None:
     driver = get_driver()
@@ -26,6 +35,13 @@ def create_constraints() -> None:
                 f"FOR (n:{label}) REQUIRE n.id IS UNIQUE"
             )
             print(f"Ensured constraint {constraint_name} on :{label}(id)")
+
+        for constraint_name, label, prop in PROPERTY_CONSTRAINTS:
+            session.run(
+                f"CREATE CONSTRAINT {constraint_name} IF NOT EXISTS "
+                f"FOR (n:{label}) REQUIRE n.{prop} IS UNIQUE"
+            )
+            print(f"Ensured constraint {constraint_name} on :{label}({prop})")
 
 
 def main() -> None:
