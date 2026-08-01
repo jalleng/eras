@@ -12,9 +12,12 @@ class EventBase(BaseModel):
     id: str
     title: str
     description: str
-    iso_date: date = Field(alias="isoDate")
+    date_start: date = Field(alias="dateStart")
+    # Null for single-day events (date_start alone describes them).
+    date_end: date | None = Field(default=None, alias="dateEnd")
     latitude: float
     longitude: float
+    wikipedia_url: str | None = Field(default=None, alias="wikipediaUrl")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -35,9 +38,9 @@ class EventCreate(EventBase):
 
 class EventResponse(EventBase):
     """API response shape. The flat fields here (id, title, description,
-    isoDate, latitude, longitude, region, location) must match the
-    frontend's `HistoricalEvent` type exactly. `location_detail`/`people`
-    are additional fields populated only by GET /events/{id}."""
+    dateStart, dateEnd, latitude, longitude, wikipediaUrl, region, location)
+    must match the frontend's `HistoricalEvent` type exactly. `location_detail`/
+    `people` are additional fields populated only by GET /events/{id}."""
 
     region: str
     location: str

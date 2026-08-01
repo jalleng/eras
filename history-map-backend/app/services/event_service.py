@@ -10,13 +10,16 @@ from app.models.person import PersonResponse
 
 
 def _to_event_response(record: dict) -> EventResponse:
+    date_end = record["date_end"]
     return EventResponse(
         id=record["id"],
         title=record["title"],
         description=record["description"],
-        iso_date=coerce_date(record["iso_date"]),
+        date_start=coerce_date(record["date_start"]),
+        date_end=coerce_date(date_end) if date_end is not None else None,
         latitude=record["latitude"],
         longitude=record["longitude"],
+        wikipedia_url=record["wikipedia_url"],
         region=record["region"],
         location=record["location"],
     )

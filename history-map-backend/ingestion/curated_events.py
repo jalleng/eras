@@ -52,12 +52,15 @@ class CuratedEvent:
     id: str
     title: str
     description: str
-    iso_date: str
+    date_start: str
     latitude: float
     longitude: float
     location_id: str
     cluster: str
     source: str
+    # Null for single-day events (date_start alone describes them).
+    date_end: str | None = None
+    wikipedia_url: str | None = None
     person_ids: list[str] = field(default_factory=list)
 
 
@@ -137,12 +140,14 @@ EVENTS: list[CuratedEvent] = [
             "Independence in Philadelphia, announcing the thirteen American "
             "colonies' separation from Great Britain."
         ),
-        iso_date="1776-07-04",
+        date_start="1776-07-04",
         latitude=39.9496,
         longitude=-75.1503,
         location_id="loc-philadelphia",
         cluster="cluster-1776-declaration-of-independence",
         source="U.S. National Archives: Declaration of Independence",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence",
         person_ids=["person-jefferson"],
     ),
     CuratedEvent(
@@ -153,12 +158,13 @@ EVENTS: list[CuratedEvent] = [
             "read aloud to the Continental Army assembled in New York City, "
             "days before the British fleet arrives in force."
         ),
-        iso_date="1776-07-09",
+        date_start="1776-07-09",
         latitude=40.7128,
         longitude=-74.0060,
         location_id="loc-new-york-city",
         cluster="cluster-1776-declaration-of-independence",
         source="Mount Vernon: George Washington's Reading of the Declaration of Independence",
+        date_end=None,
         person_ids=["person-washington"],
     ),
     CuratedEvent(
@@ -170,12 +176,14 @@ EVENTS: list[CuratedEvent] = [
             "traveler Mai (Omai) home but secretly tasked with searching for a "
             "Northwest Passage."
         ),
-        iso_date="1776-07-12",
+        date_start="1776-07-12",
         latitude=50.3755,
         longitude=-4.1427,
         location_id="loc-plymouth-england",
         cluster="cluster-1776-declaration-of-independence",
         source="Captain Cook Society: Third Pacific Voyage",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Third_voyage_of_James_Cook",
         person_ids=["person-cook"],
     ),
     CuratedEvent(
@@ -187,12 +195,14 @@ EVENTS: list[CuratedEvent] = [
             "Colonel William Moultrie, a major early Patriot victory six days "
             "before the Declaration."
         ),
-        iso_date="1776-06-28",
+        date_start="1776-06-28",
         latitude=32.7765,
         longitude=-79.8398,
         location_id="loc-sullivans-island",
         cluster="cluster-1776-declaration-of-independence",
         source="American Battlefield Trust: Sullivan's Island",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Battle_of_Sullivan%27s_Island",
         person_ids=["person-moultrie"],
     ),
     # --- Cluster: Opening of the Pacific War, December 1941 ---
@@ -205,12 +215,14 @@ EVENTS: list[CuratedEvent] = [
             "over 2,400 American service members, bringing the United States "
             "into World War II."
         ),
-        iso_date="1941-12-07",
+        date_start="1941-12-07",
         latitude=21.3469,
         longitude=-157.9583,
         location_id="loc-pearl-harbor",
         cluster="cluster-1941-pacific-war-opening",
         source="Britannica: Attack on Pearl Harbor",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Attack_on_Pearl_Harbor",
     ),
     CuratedEvent(
         id="1941-kota-bharu-landing",
@@ -221,12 +233,14 @@ EVENTS: list[CuratedEvent] = [
             "Japanese forces land on the northeastern coast of Malaya, opening "
             "the invasion of British Malaya."
         ),
-        iso_date="1941-12-08",
+        date_start="1941-12-08",
         latitude=6.1254,
         longitude=102.2381,
         location_id="loc-kota-bharu",
         cluster="cluster-1941-pacific-war-opening",
         source="Australian War Memorial: Invasion of Malaya",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Battle_of_Kota_Bharu",
     ),
     CuratedEvent(
         id="1941-attack-on-hong-kong",
@@ -236,12 +250,14 @@ EVENTS: list[CuratedEvent] = [
             "Territories and Japanese aircraft bomb Kai Tak Airfield, opening "
             "the eighteen-day Battle of Hong Kong."
         ),
-        iso_date="1941-12-08",
+        date_start="1941-12-08",
         latitude=22.3193,
         longitude=114.1694,
         location_id="loc-hong-kong",
         cluster="cluster-1941-pacific-war-opening",
         source="Juno Beach Centre: The Battle of Hong Kong",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Battle_of_Hong_Kong",
     ),
     CuratedEvent(
         id="1941-attack-on-clark-field",
@@ -252,12 +268,14 @@ EVENTS: list[CuratedEvent] = [
             "American air power in the Philippines just hours after word of "
             "Pearl Harbor arrived."
         ),
-        iso_date="1941-12-08",
+        date_start="1941-12-08",
         latitude=15.1855,
         longitude=120.5606,
         location_id="loc-clark-field",
         cluster="cluster-1941-pacific-war-opening",
         source="Air & Space Forces Magazine: Disaster in the Philippines",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Attack_on_Clark_Field",
     ),
     CuratedEvent(
         id="1941-attack-on-guam",
@@ -267,12 +285,14 @@ EVENTS: list[CuratedEvent] = [
             "territory of Guam, beginning the invasion that would force its "
             "small garrison to surrender within two days."
         ),
-        iso_date="1941-12-08",
+        date_start="1941-12-08",
         latitude=13.4443,
         longitude=144.7937,
         location_id="loc-guam",
         cluster="cluster-1941-pacific-war-opening",
         source="Naval History and Heritage Command: Philippines, Guam, and Wake Attacks",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Battle_of_Guam_(1941)",
     ),
     # --- Cluster: Black Saturday, October 27 1962 ---
     CuratedEvent(
@@ -285,12 +305,14 @@ EVENTS: list[CuratedEvent] = [
             "Crisis and the moment U.S. and Soviet leaders later described as "
             "the closest the crisis came to war."
         ),
-        iso_date="1962-10-27",
+        date_start="1962-10-27",
         latitude=20.9631,
         longitude=-75.7181,
         location_id="loc-banes-cuba",
         cluster="cluster-1962-black-saturday",
         source="JFK Presidential Library: October 27, 1962",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Rudolf_Anderson",
         person_ids=["person-anderson"],
     ),
     CuratedEvent(
@@ -302,12 +324,14 @@ EVENTS: list[CuratedEvent] = [
             "downing, ultimately choosing to hold off on immediate military "
             "retaliation while back-channel diplomacy continues."
         ),
-        iso_date="1962-10-27",
+        date_start="1962-10-27",
         latitude=38.8977,
         longitude=-77.0365,
         location_id="loc-washington-dc",
         cluster="cluster-1962-black-saturday",
         source="JFK Presidential Library: October 27, 1962",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/EXCOMM",
         person_ids=["person-kennedy"],
     ),
     CuratedEvent(
@@ -319,12 +343,13 @@ EVENTS: list[CuratedEvent] = [
             "from Turkey in exchange for withdrawing Soviet missiles from Cuba, "
             "complicating the private negotiations already underway."
         ),
-        iso_date="1962-10-27",
+        date_start="1962-10-27",
         latitude=55.7558,
         longitude=37.6173,
         location_id="loc-moscow",
         cluster="cluster-1962-black-saturday",
         source="JFK Presidential Library: October 27, 1962",
+        date_end=None,
         person_ids=["person-khrushchev"],
     ),
     CuratedEvent(
@@ -337,11 +362,13 @@ EVENTS: list[CuratedEvent] = [
             "at the same time as the Cuban Missile Crisis on the opposite side "
             "of the globe."
         ),
-        iso_date="1962-10-27",
+        date_start="1962-10-27",
         latitude=28.1465,
         longitude=96.9528,
         location_id="loc-walong",
         cluster="cluster-1962-black-saturday",
         source="History Guild: Combat in the High Himalayas, the Sino-Indian War of 1962",
+        date_end=None,
+        wikipedia_url="https://en.wikipedia.org/wiki/Battle_of_Walong",
     ),
 ]

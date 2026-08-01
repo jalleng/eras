@@ -8,11 +8,13 @@ const sampleEvent: HistoricalEvent = {
   title: 'Declaration of Independence adopted',
   description:
     'The Second Continental Congress formally adopts the Declaration.',
-  isoDate: '1776-07-04',
+  dateStart: '1776-07-04',
+  dateEnd: null,
   latitude: 39.9496,
   longitude: -75.1503,
   region: 'North America',
   location: 'Philadelphia, Pennsylvania',
+  wikipediaUrl: 'https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence',
 }
 
 describe('EventTooltip', () => {

@@ -47,12 +47,12 @@ def test_seed_and_query_events_end_to_end(real_session):
         MERGE (l)-[:IN_REGION]->(r)
         MERGE (e1:Event {id: $event_1_id})
         SET e1.title = 'Test Event One', e1.description = 'First test event',
-            e1.date = date('2000-01-01'), e1.latitude = 10.0, e1.longitude = 20.0,
+            e1.date_start = date('2000-01-01'), e1.latitude = 10.0, e1.longitude = 20.0,
             e1.source = 'integration test'
         MERGE (e1)-[:OCCURRED_AT]->(l)
         MERGE (e2:Event {id: $event_2_id})
         SET e2.title = 'Test Event Two', e2.description = 'Second test event',
-            e2.date = date('2000-01-01'), e2.latitude = 30.0, e2.longitude = 40.0,
+            e2.date_start = date('2000-01-01'), e2.latitude = 30.0, e2.longitude = 40.0,
             e2.source = 'integration test'
         MERGE (e2)-[:OCCURRED_AT]->(l)
         MERGE (e1)-[:CONCURRENT_WITH]-(e2)

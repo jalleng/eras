@@ -22,12 +22,15 @@ export interface HistoricalEvent {
   title: string
   description: string
   /** ISO 8601 date (YYYY-MM-DD). Always CE/Gregorian for this dataset. */
-  isoDate: string
+  dateStart: string
+  /** ISO 8601 date (YYYY-MM-DD), or null for single-day events. */
+  dateEnd: string | null
   latitude: number
   longitude: number
   region: Region
   /** Human-readable place name shown alongside the region label. */
   location: string
+  wikipediaUrl: string | null
 }
 
 export interface CuratedDateEntry {

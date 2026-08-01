@@ -1,5 +1,6 @@
 import type { HistoricalEvent } from '../../api/types'
 import { ConcurrentEventsList } from './ConcurrentEventsList'
+import { formatDisplayDate, formatDisplayDateRange } from '../../utils/dateUtils'
 
 interface EventPanelProps {
   event: HistoricalEvent | null
@@ -22,6 +23,10 @@ export function EventPanel({
 }: EventPanelProps) {
   if (!event) return null
 
+  const dateLabel = event.dateEnd
+    ? formatDisplayDateRange(event.dateStart, event.dateEnd)
+    : formatDisplayDate(event.dateStart)
+
   return (
     <aside
       aria-label="Event details"
@@ -30,6 +35,7 @@ export function EventPanel({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold">{event.title}</h2>
+          <p className="text-sm text-slate-400">{dateLabel}</p>
           <p className="text-sm text-slate-400">
             {event.location} &middot; {event.region}
           </p>
@@ -45,6 +51,17 @@ export function EventPanel({
       </div>
 
       <p className="text-sm text-slate-200">{event.description}</p>
+
+      {event.wikipediaUrl && (
+        <a
+          href={event.wikipediaUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-sky-400 hover:text-sky-300 hover:underline"
+        >
+          Read more on Wikipedia
+        </a>
+      )}
 
       <div>
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">

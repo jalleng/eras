@@ -9,11 +9,14 @@ def _events_in_range_tx(
     result = tx.run(
         """
         MATCH (e:Event)-[:OCCURRED_AT]->(l:Location)-[:IN_REGION]->(r:Region)
-        WHERE e.date >= date($start_date) AND e.date <= date($end_date)
+        WHERE e.date_start <= date($end_date)
+          AND coalesce(e.date_end, e.date_start) >= date($start_date)
         RETURN e.id AS id, e.title AS title, e.description AS description,
-               e.date AS iso_date, e.latitude AS latitude, e.longitude AS longitude,
+               e.date_start AS date_start, e.date_end AS date_end,
+               e.latitude AS latitude, e.longitude AS longitude,
+               e.wikipedia_url AS wikipedia_url,
                r.name AS region, l.name AS location
-        ORDER BY e.date ASC
+        ORDER BY e.date_start ASC
         """,
         start_date=start_date,
         end_date=end_date,
@@ -24,8 +27,9 @@ def _events_in_range_tx(
 def get_events_in_range(
     session: Session, start_date: date, end_date: date
 ) -> list[dict]:
-    """Returns events whose date falls within [start_date, end_date], each
-    flattened with its location name and region (joined via :Location/:Region)."""
+    """Returns events whose [date_start, date_end] span (date_end treated as
+    date_start when null) overlaps [start_date, end_date], each flattened
+    with its location name and region (joined via :Location/:Region)."""
     return session.execute_read(
         _events_in_range_tx, start_date.isoformat(), end_date.isoformat()
     )
@@ -38,7 +42,9 @@ def _event_by_id_tx(tx: ManagedTransaction, event_id: str) -> dict | None:
         OPTIONAL MATCH (e)-[:INVOLVED]->(p:Person)
         WITH e, l, r, collect(p) AS people_nodes
         RETURN e.id AS id, e.title AS title, e.description AS description,
-               e.date AS iso_date, e.latitude AS latitude, e.longitude AS longitude,
+               e.date_start AS date_start, e.date_end AS date_end,
+               e.latitude AS latitude, e.longitude AS longitude,
+               e.wikipedia_url AS wikipedia_url,
                r.name AS region, l.name AS location,
                {id: l.id, name: l.name, latitude: l.latitude,
                 longitude: l.longitude, region: r.name} AS location_detail,
@@ -63,9 +69,11 @@ def _concurrent_events_tx(tx: ManagedTransaction, event_id: str) -> list[dict]:
         MATCH (:Event {id: $event_id})-[:CONCURRENT_WITH]-(other:Event)
               -[:OCCURRED_AT]->(l:Location)-[:IN_REGION]->(r:Region)
         RETURN DISTINCT other.id AS id, other.title AS title, other.description AS description,
-               other.date AS iso_date, other.latitude AS latitude, other.longitude AS longitude,
+               other.date_start AS date_start, other.date_end AS date_end,
+               other.latitude AS latitude, other.longitude AS longitude,
+               other.wikipedia_url AS wikipedia_url,
                r.name AS region, l.name AS location
-        ORDER BY other.date ASC
+        ORDER BY other.date_start ASC
         """,
         event_id=event_id,
     )

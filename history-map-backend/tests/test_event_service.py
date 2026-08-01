@@ -7,9 +7,11 @@ PHILADELPHIA_RECORD = {
     "id": "1776-declaration-of-independence",
     "title": "Declaration of Independence adopted",
     "description": "Adopted in Philadelphia.",
-    "iso_date": date(1776, 7, 4),
+    "date_start": date(1776, 7, 4),
+    "date_end": None,
     "latitude": 39.9496,
     "longitude": -75.1503,
+    "wikipedia_url": "https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence",
     "region": "North America",
     "location": "Philadelphia, Pennsylvania",
 }
@@ -29,12 +31,35 @@ def test_get_events_in_range_maps_records_to_event_response(mocker):
     assert len(events) == 1
     event = events[0]
     assert event.id == "1776-declaration-of-independence"
-    assert event.iso_date == date(1776, 7, 4)
+    assert event.date_start == date(1776, 7, 4)
+    assert event.date_end is None
+    assert event.wikipedia_url == "https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence"
     assert event.region == "North America"
     assert event.location == "Philadelphia, Pennsylvania"
     # Flat list responses don't populate the detail-only fields.
     assert event.location_detail is None
     assert event.people is None
+
+
+def test_get_events_in_range_maps_multi_day_event_date_end(mocker):
+    record = {
+        **PHILADELPHIA_RECORD,
+        "date_start": date(1962, 10, 25),
+        "date_end": date(1962, 11, 14),
+        "wikipedia_url": None,
+    }
+    mocker.patch.object(
+        event_service.event_queries, "get_events_in_range", return_value=[record]
+    )
+
+    events = event_service.get_events_in_range(
+        MagicMock(), date(1962, 10, 1), date(1962, 11, 30)
+    )
+
+    assert len(events) == 1
+    assert events[0].date_start == date(1962, 10, 25)
+    assert events[0].date_end == date(1962, 11, 14)
+    assert events[0].wikipedia_url is None
 
 
 def test_get_events_in_range_returns_empty_list_when_no_events(mocker):
