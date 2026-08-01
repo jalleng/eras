@@ -7,22 +7,26 @@ const DECLARATION_EVENT: HistoricalEvent = {
   id: '1776-declaration-of-independence',
   title: 'Declaration of Independence adopted',
   description: 'Adopted in Philadelphia.',
-  isoDate: '1776-07-04',
+  dateStart: '1776-07-04',
+  dateEnd: null,
   latitude: 39.9496,
   longitude: -75.1503,
   region: 'North America',
   location: 'Philadelphia, Pennsylvania',
+  wikipediaUrl: 'https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence',
 }
 
 const PEARL_HARBOR_EVENT: HistoricalEvent = {
   id: '1941-pearl-harbor',
   title: 'Attack on Pearl Harbor',
   description: 'Attack on the U.S. Pacific Fleet.',
-  isoDate: '1941-12-07',
+  dateStart: '1941-12-07',
+  dateEnd: null,
   latitude: 21.3469,
   longitude: -157.9583,
   region: 'North America',
   location: 'Pearl Harbor, Oahu, Hawaii',
+  wikipediaUrl: null,
 }
 
 describe('App', () => {

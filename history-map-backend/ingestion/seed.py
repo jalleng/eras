@@ -64,28 +64,36 @@ def _seed_event_tx(
     event_id: str,
     title: str,
     description: str,
-    iso_date: str,
+    date_start: str,
+    date_end: str | None,
     latitude: float,
     longitude: float,
     source: str,
     location_id: str,
+    wikipedia_url: str | None,
 ) -> None:
     tx.run(
         """
         MATCH (l:Location {id: $location_id})
         MERGE (e:Event {id: $event_id})
-        SET e.title = $title, e.description = $description, e.date = date($iso_date),
-            e.latitude = $latitude, e.longitude = $longitude, e.source = $source
+        SET e.title = $title, e.description = $description,
+            e.date_start = date($date_start),
+            e.date_end = CASE WHEN $date_end IS NULL THEN NULL ELSE date($date_end) END,
+            e.latitude = $latitude, e.longitude = $longitude, e.source = $source,
+            e.wikipedia_url = $wikipedia_url
+        REMOVE e.date
         MERGE (e)-[:OCCURRED_AT]->(l)
         """,
         event_id=event_id,
         title=title,
         description=description,
-        iso_date=iso_date,
+        date_start=date_start,
+        date_end=date_end,
         latitude=latitude,
         longitude=longitude,
         source=source,
         location_id=location_id,
+        wikipedia_url=wikipedia_url,
     )
 
 
@@ -164,11 +172,13 @@ def seed(session: Session) -> None:
             event.id,
             event.title,
             event.description,
-            event.iso_date,
+            event.date_start,
+            event.date_end,
             event.latitude,
             event.longitude,
             event.source,
             event.location_id,
+            event.wikipedia_url,
         )
         for person_id in event.person_ids:
             session.execute_write(_seed_involved_tx, event.id, person_id)

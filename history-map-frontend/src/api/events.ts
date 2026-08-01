@@ -43,6 +43,6 @@ export async function getEventsForDate(
   }
 
   return [...eventsById.values()].sort((a, b) =>
-    a.isoDate.localeCompare(b.isoDate),
+    a.dateStart.localeCompare(b.dateStart),
   )
 }

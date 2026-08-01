@@ -3,6 +3,7 @@ import {
   compareIsoDates,
   findClosestDateIndex,
   formatDisplayDate,
+  formatDisplayDateRange,
   parseIsoDate,
 } from './dateUtils'
 
@@ -33,6 +34,20 @@ describe('formatDisplayDate', () => {
 
   it('formats January correctly (month index edge case)', () => {
     expect(formatDisplayDate('1962-01-01')).toBe('January 1, 1962')
+  })
+})
+
+describe('formatDisplayDateRange', () => {
+  it('formats a same-year range without repeating the year on the start date', () => {
+    expect(formatDisplayDateRange('1776-06-28', '1776-07-12')).toBe(
+      'June 28 – July 12, 1776',
+    )
+  })
+
+  it('spells out both years when the range crosses a year boundary', () => {
+    expect(formatDisplayDateRange('1941-12-30', '1942-01-02')).toBe(
+      'December 30, 1941 – January 2, 1942',
+    )
   })
 })
 

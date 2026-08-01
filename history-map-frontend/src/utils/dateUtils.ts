@@ -42,6 +42,17 @@ export function formatDisplayDate(isoDate: string): string {
   return `${MONTH_NAMES[month - 1]} ${day}, ${year}`
 }
 
+/** Formats an event's date span, e.g. "June 28 – July 12, 1776" (or, across a year boundary, "December 30, 1941 – January 2, 1942"). */
+export function formatDisplayDateRange(startIsoDate: string, endIsoDate: string): string {
+  const start = parseIsoDate(startIsoDate)
+  const end = parseIsoDate(endIsoDate)
+  const startLabel =
+    start.year === end.year
+      ? `${MONTH_NAMES[start.month - 1]} ${start.day}`
+      : formatDisplayDate(startIsoDate)
+  return `${startLabel} – ${formatDisplayDate(endIsoDate)}`
+}
+
 /** Compares two ISO dates chronologically (negative if `a` is earlier than `b`). */
 export function compareIsoDates(a: string, b: string): number {
   return a.localeCompare(b)
