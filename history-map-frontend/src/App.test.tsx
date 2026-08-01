@@ -79,7 +79,8 @@ describe('App', () => {
     })
 
     const slider = screen.getByRole('slider', { name: /select a date/i })
-    fireEvent.change(slider, { target: { value: '1' } })
+    // Index 2: 0=Declaration of Independence (1776), 1=Battle of Waterloo (1815), 2=Pearl Harbor (1941).
+    fireEvent.change(slider, { target: { value: '2' } })
 
     expect(screen.getByText('December 7, 1941')).toBeInTheDocument()
 
