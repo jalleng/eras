@@ -181,6 +181,7 @@ export function WorldMap({
             onHoverEvent={onHoverEvent}
             onSelectEvent={onSelectEvent}
             markerScale={zoomK}
+            rotate={projectionType === 'orthographic' ? rotate : null}
           />
         </g>
       </svg>
