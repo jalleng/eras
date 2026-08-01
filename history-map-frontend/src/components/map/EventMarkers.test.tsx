@@ -3,6 +3,7 @@ import { geoEquirectangular } from 'd3-geo'
 import { describe, expect, it, vi } from 'vitest'
 import { EventMarkers } from './EventMarkers'
 import type { HistoricalEvent } from '../../api/types'
+import { colorForRegion } from '../../utils/colorScale'
 
 const events: HistoricalEvent[] = [
   {
@@ -103,5 +104,29 @@ describe('EventMarkers', () => {
       name: /Declaration of Independence/,
     })
     expect(marker).toHaveAttribute('tabindex', '0')
+  })
+
+  it('renders far-hemisphere events as ghosted and non-interactive, given a rotation', () => {
+    // Center chosen so Philadelphia (~98° away) is on the far side of the
+    // globe while Plymouth (~49° away) stays on the visible front.
+    renderMarkers({ rotate: [-46.986, -21.4007, 0] })
+
+    // aria-hidden="true" removes the element's accessible name, so it can't
+    // be found via getByRole here — query the DOM directly instead.
+    const philly = document.querySelector(
+      '[aria-label^="Declaration of Independence"]',
+    ) as SVGGElement
+    expect(philly).toHaveAttribute('aria-hidden', 'true')
+    expect(philly).toHaveAttribute('tabindex', '-1')
+    const phillyCircle = philly.querySelector('circle:last-of-type')
+    expect(phillyCircle).toHaveAttribute('fill', 'none')
+    expect(phillyCircle).toHaveAttribute('stroke-dasharray', '2,2')
+
+    const plymouth = screen.getByRole('button', { name: /Captain Cook/ })
+    expect(plymouth).toHaveAttribute('aria-hidden', 'false')
+    expect(plymouth).toHaveAttribute('tabindex', '0')
+    const plymouthCircle = plymouth.querySelector('circle:last-of-type')
+    expect(plymouthCircle).toHaveAttribute('fill', colorForRegion('Europe'))
+    expect(plymouthCircle).not.toHaveAttribute('stroke-dasharray')
   })
 })
