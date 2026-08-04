@@ -11,7 +11,7 @@ import type { MapAction, MapState } from './types'
 
 const initialState: MapState = {
   rangeStart: featuredRanges[0].rangeStart,
-  rangeEnd: featuredRanges[0].rangeEnd,
+  rangeEnd: featuredRanges[1].rangeEnd,
   projectionType: 'equirectangular',
   hoveredEventId: null,
   focusedEventId: null,
@@ -24,7 +24,11 @@ function mapReducer(state: MapState, action: MapAction): MapState {
       // focused event are independent. Whether a focus should be cleared
       // because it's now outside the range is decided at the app level
       // (where the focused event's own date is known), not here.
-      return { ...state, rangeStart: action.rangeStart, rangeEnd: action.rangeEnd }
+      return {
+        ...state,
+        rangeStart: action.rangeStart,
+        rangeEnd: action.rangeEnd,
+      }
     case 'SET_PROJECTION':
       return { ...state, projectionType: action.projectionType }
     case 'HOVER_EVENT':

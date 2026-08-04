@@ -64,6 +64,7 @@ export function DateSlider({
 
   return (
     <div className="flex w-full flex-col gap-2">
+      <span>Select a Range</span>
       <div className="flex justify-between text-xs text-slate-500">
         <span>{formatDisplayDate(absoluteMinDate)}</span>
         <span>{formatDisplayDate(absoluteMaxDate)}</span>
