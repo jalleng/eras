@@ -1,5 +1,9 @@
 import { Range, getTrackBackground } from 'react-range'
-import { dayNumberToIsoDate, formatDisplayDate, isoDateToDayNumber } from '../../utils/dateUtils'
+import {
+  dayNumberToIsoDate,
+  formatDisplayDate,
+  isoDateToDayNumber,
+} from '../../utils/dateUtils'
 
 export const DEFAULT_MIN_GAP_DAYS = 1
 
@@ -35,6 +39,11 @@ export function DateSlider({
   const min = isoDateToDayNumber(absoluteMinDate)
   const max = isoDateToDayNumber(absoluteMaxDate)
   const values = [isoDateToDayNumber(rangeStart), isoDateToDayNumber(rangeEnd)]
+  const thumbColors = [
+    'border-purple-500 bg-purple-500',
+    'border-orange-500 bg-orange-500',
+  ]
+  const labelColors = ['text-purple-500', 'text-orange-500']
 
   const handleChange = (nextValues: number[]) => {
     const [nextStart, nextEnd] = nextValues
@@ -120,21 +129,22 @@ export function DateSlider({
                 key={key}
                 {...thumbProps}
                 aria-label={label}
-                aria-valuetext={formatDisplayDate(dayNumberToIsoDate(values[index]))}
-                className="pointer-events-none outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+                aria-valuetext={formatDisplayDate(
+                  dayNumberToIsoDate(values[index]),
+                )}
               >
                 <div
                   style={{ transform: `translateY(${verticalNudge}px)` }}
-                  className="pointer-events-auto h-5 w-5 rounded-full border-2 border-sky-400 bg-white shadow"
+                  className={`pointer-events-auto h-5 w-5 rounded-full border-2 shadow ${thumbColors[index]}`}
                 />
               </div>
             )
           }}
         />
       </div>
-      <div className="flex justify-between text-sm font-medium text-sky-300">
-        <span>{formatDisplayDate(rangeStart)}</span>
-        <span>{formatDisplayDate(rangeEnd)}</span>
+      <div className="flex justify-between text-sm font-medium">
+        <span className={labelColors[0]}>{formatDisplayDate(rangeStart)}</span>
+        <span className={labelColors[1]}>{formatDisplayDate(rangeEnd)}</span>
       </div>
     </div>
   )

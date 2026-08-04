@@ -7,6 +7,14 @@ export function Header() {
           Explore what was happening around the world, one date at a time
         </p>
       </div>
+      <a
+        className="ml-auto text-white/40 text-[13px] italic"
+        href="https://www.linkedin.com/in/jeffreygerber/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        A Jalleng App
+      </a>
     </header>
   )
 }
