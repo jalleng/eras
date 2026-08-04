@@ -1,3 +1,6 @@
+const JALLENG_APP_LINK: string | undefined = import.meta.env
+  .VITE_JALLENG_APP_LINK
+
 export function Header() {
   return (
     <header className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-3">
@@ -9,7 +12,7 @@ export function Header() {
       </div>
       <a
         className="ml-auto text-white/40 text-[13px] italic"
-        href="https://www.linkedin.com/in/jeffreygerber/"
+        href={JALLENG_APP_LINK}
         target="_blank"
         rel="noopener noreferrer"
       >
