@@ -155,18 +155,24 @@ export function WorldMap({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="h-full w-full touch-none select-none bg-slate-950"
+        className="h-full w-full touch-none select-none bg-sky-950"
         role="img"
         aria-label="World map showing historical events for the selected date range"
         onMouseMove={handlePointerMove}
         onMouseLeave={() => setPointerPosition(null)}
       >
         <g transform={transform}>
-          {projectionType === 'orthographic' && (
+          {projectionType === 'orthographic' ? (
             <path
               d={path({ type: 'Sphere' }) ?? undefined}
-              className="fill-slate-800"
+              className="fill-sky-700 stroke-slate-700"
             />
+          ) : (
+            // The flat map has no globe disk to draw water onto, so give it
+            // its own full-canvas ocean layer in the same color as the
+            // globe's water -- otherwise it'd just show the svg's own
+            // background (the globe view's "space" color) showing through.
+            <rect x={0} y={0} width={WIDTH} height={HEIGHT} className="fill-sky-700" />
           )}
           <path
             d={path(landFeature) ?? undefined}
