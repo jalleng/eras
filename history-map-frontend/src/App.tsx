@@ -108,7 +108,7 @@ function AppContent() {
         </div>
 
         <div className="flex min-h-0 flex-1">
-          <div className="min-h-0 flex-1">
+          <div className="min-h-0 flex-1 bg-slate-950">
             <WorldMap
               events={events}
               hoveredEventId={state.hoveredEventId}

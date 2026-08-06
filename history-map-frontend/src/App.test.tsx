@@ -82,7 +82,9 @@ describe('App', () => {
 
   it('shows the default featured range and its events by default', async () => {
     render(<App />)
-    expect(screen.getByText('June 28 – July 12, 1776')).toBeInTheDocument()
+    expect(
+      screen.getByText('June 28, 1776 – June 22, 1815'),
+    ).toBeInTheDocument()
     await waitFor(() => {
       expect(
         screen.getByRole('button', {

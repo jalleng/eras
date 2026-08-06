@@ -11,10 +11,10 @@ function setup() {
 }
 
 describe('mapStore', () => {
-  it('defaults the range to the first featured range and clears hover/focus', () => {
+  it('defaults the range to span the first through second featured range and clears hover/focus', () => {
     const { result } = setup()
     expect(result.current.state.rangeStart).toBe(featuredRanges[0].rangeStart)
-    expect(result.current.state.rangeEnd).toBe(featuredRanges[0].rangeEnd)
+    expect(result.current.state.rangeEnd).toBe(featuredRanges[1].rangeEnd)
     expect(result.current.state.hoveredEventId).toBeNull()
     expect(result.current.state.focusedEventId).toBeNull()
   })

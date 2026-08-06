@@ -64,10 +64,34 @@ export function DateSlider({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <span>Select a Range</span>
-      <div className="flex justify-between text-xs text-slate-500">
-        <span>{formatDisplayDate(absoluteMinDate)}</span>
-        <span>{formatDisplayDate(absoluteMaxDate)}</span>
+      <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
+        <span className="min-w-0 flex-1 text-left">
+          {formatDisplayDate(absoluteMinDate)}
+        </span>
+        <div className="flex flex-none items-center justify-center gap-3 text-xs font-medium sm:text-sm">
+          {/* Fixed width, not auto-sized to content: this keeps "Selected
+              Range" (and everything else in the row) pinned in place as the
+              dates change while dragging, rather than reflowing on every
+              tick. w-40 (160px) comfortably fits the widest realistic
+              label at this font size ("September 30, 2026" measures ~150px)
+              with room to spare, so it won't overlap either. */}
+          <span
+            className={`w-40 shrink-0 text-right whitespace-nowrap ${labelColors[0]}`}
+          >
+            {formatDisplayDate(rangeStart)}
+          </span>
+          <span className="shrink-0 text-base text-slate-500 sm:text-lg">
+            Selected Range
+          </span>
+          <span
+            className={`w-40 shrink-0 text-left whitespace-nowrap ${labelColors[1]}`}
+          >
+            {formatDisplayDate(rangeEnd)}
+          </span>
+        </div>
+        <span className="min-w-0 flex-1 text-right">
+          {formatDisplayDate(absoluteMaxDate)}
+        </span>
       </div>
       {/* A wrapper `div`, separate from the track itself, so a future
           density-overlay layer could be absolutely positioned above the
@@ -142,10 +166,6 @@ export function DateSlider({
             )
           }}
         />
-      </div>
-      <div className="flex justify-between text-sm font-medium">
-        <span className={labelColors[0]}>{formatDisplayDate(rangeStart)}</span>
-        <span className={labelColors[1]}>{formatDisplayDate(rangeEnd)}</span>
       </div>
     </div>
   )
