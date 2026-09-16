@@ -18,7 +18,7 @@ export function MapProjectionToggle({
     <div
       role="radiogroup"
       aria-label="Map projection"
-      className="inline-flex rounded-md border border-slate-700 bg-slate-900/80 p-1"
+      className="max-w-max rounded-md border border-slate-700 bg-slate-900/80 p-1"
     >
       {OPTIONS.map((option) => {
         const isSelected = option.value === value
