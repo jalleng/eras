@@ -69,12 +69,6 @@ function AppContent() {
             rangeEnd={state.rangeEnd}
             eventCount={eventsLoading ? null : events.length}
           />
-          <MapProjectionToggle
-            value={state.projectionType}
-            onChange={(projectionType) =>
-              dispatch({ type: 'SET_PROJECTION', projectionType })
-            }
-          />
         </div>
 
         <div className="flex flex-col gap-3 border-b border-slate-800 px-4 py-3">
@@ -109,6 +103,12 @@ function AppContent() {
 
         <div className="flex min-h-0 flex-1">
           <div className="min-h-0 flex-1 bg-slate-950">
+            <MapProjectionToggle
+              value={state.projectionType}
+              onChange={(projectionType) =>
+                dispatch({ type: 'SET_PROJECTION', projectionType })
+              }
+            />
             <WorldMap
               events={events}
               hoveredEventId={state.hoveredEventId}

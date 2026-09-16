@@ -7,9 +7,13 @@ interface DateDisplayProps {
   eventCount: number | null
 }
 
-export function DateDisplay({ rangeStart, rangeEnd, eventCount }: DateDisplayProps) {
+export function DateDisplay({
+  rangeStart,
+  rangeEnd,
+  eventCount,
+}: DateDisplayProps) {
   return (
-    <div>
+    <div className="flex items-center gap-3 ">
       <p className="text-xl font-semibold text-white sm:text-2xl">
         {formatDisplayDateRange(rangeStart, rangeEnd)}
       </p>
